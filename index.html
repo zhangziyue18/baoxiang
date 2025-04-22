@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>子曰的资源宝箱</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+        }
+
+        .logo h1 {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-button {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #fff;
+            color: #333;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .header-button:hover {
+            background: #f5f5f5;
+        }
+
+        .search-box {
+            position: fixed;
+            right: 20px;
+            top: 60px;
+            width: 300px;
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+            z-index: 100;
+        }
+
+        .search-results {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .search-result-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+
+        .search-result-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .search-result-path {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1001;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .close-button {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .share-link {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .share-link input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        .copy-button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .copy-button:hover {
+            background-color: #45a049;
+        }
+
+        .subscribe-form {
+            margin-top: 20px;
+        }
+
+        .subscribe-form input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .subscribe-form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .subscribe-form button:hover {
+            background-color: #45a049;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 80px auto 20px;
+            padding: 20px;
+        }
+
+        .category {
+            margin-bottom: 15px;
+            background: #fff;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .category-header:hover {
+            background-color: #f0f0f0;
+        }
+
+        .category-header h2 {
+            font-size: 16px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .category-icon {
+            color: #666;
+            transition: transform 0.3s;
+        }
+
+        .collapsed .category-icon {
+            transform: rotate(-90deg);
+        }
+
+        .category-content {
+            padding: 10px 15px;
+            display: block;
+        }
+
+        .collapsed .category-content {
+            display: none;
+        }
+
+        .subcategory {
+            margin: 10px 0;
+        }
+
+        .subcategory-header {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .subcategory-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-left: 20px;
+            padding-bottom: 5px;
+        }
+
+        .link {
+            display: inline-block;
+            color: #1e88e5;
+            text-decoration: none;
+            font-size: 14px;
+            margin-right: 15px;
+            position: relative;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .link::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            background-color: #1e88e5;
+            border-radius: 50%;
+            margin-right: 5px;
+            position: relative;
+            top: -2px;
+        }
+
+        .divider {
+            display: inline-block;
+            color: #ccc;
+            margin: 0 5px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .header {
+                padding: 8px 15px;
+            }
+            .container {
+                margin-top: 70px;
+                padding: 10px;
+            }
+            .link {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzRjYWY1MCI+PHBhdGggZD0iTTMsMTJIMjFWMTRIM1YxMlpNMyw4SDIxVjEwSDNWOFpNMywxNkgyMVYxOEgzVjE2WiIvPjwvc3ZnPg==" alt="Logo">
+            <h1>子曰的资源宝箱</h1>
+        </div>
+        <div class="header-buttons">
+            <a href="#" class="header-button" id="shareButton">分享</a>
+            <a href="#" class="header-button" id="subscribeButton">订阅</a>
+            <a href="#" class="header-button" id="searchButton">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </a>
+        </div>
+    </div>
+
+    <!-- 分享弹窗 -->
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>分享链接</h2>
+            <div class="share-link">
+                <input type="text" value="https://zhangziyue18.github.io/nav-site/" readonly>
+                <button class="copy-button">复制链接</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 订阅弹窗 -->
+    <div class="modal" id="subscribeModal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>订阅更新</h2>
+            <form class="subscribe-form">
+                <input type="email" placeholder="请输入您的邮箱" required>
+                <button type="submit">订阅</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">▼</span>
+                <h2>学习专区</h2>
+            </div>
+            <div class="category-content">
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>爬虫相关</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://greasyfork.org/zh-CN" class="link">脚本网站_T</a>
+                        <a href="https://www.tampermonkey.net/index.php?browser=chrome&locale=zh" class="link">运行脚本的插件_T</a>
+                        <a href="https://www.json.cn/jsononline/" class="link">JSON在线解析</a>
+                        <a href="https://www.tianqiip.com/login?back=/manager/user" class="link">天启IP代理</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>数据结构</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://visualgo.net/en" class="link">数据结构可视化_T</a>
+                        <a href="https://totuma.cn/" class="link">数据结构可视化</a>
+                        <a href="https://labuladong.online/algo/home/" class="link">算法笔记</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>题库刷题</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://www.lanqiao.cn/problems/?first_category_id=1" class="link">蓝桥云库</a>
+                        <a href="https://leetcode.cn/leetbook/" class="link">力扣刷题</a>
+                        <a href="https://www.nowcoder.com/exam/oj?page=1&tab=算法题库&topicId=1" class="link">牛客网</a>
+                        <a href="https://www.acwing.com/activity/content/1/" class="link">AcWing</a>
+                        <a href="https://www.luogu.com.cn/problem/list" class="link">洛谷刷题</a>
+                        <a href="https://www.codeforces.com/problemset" class="link">CodeForces</a>
+                        <a href="https://www.patest.cn/contests/pat-a-practise/index" class="link">PAT</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>网络安全</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://drive.weixin.qq.com/s?k=AJAAigdmACc7e8gHtK&pass_ticket=OXKKmQJW2BIpXnhdqGbFg%2BBoPSzbYZu8Fnaq6EOHUnR10PC6h4SGx0%2B96DvcW6Hp8xW25%2FIQ2To18HtslKbDzQ%3D%3D#/preview?fileId=i.1970325498006160.1688857329533091_f.731737319zOaf" class="link">一些良好习惯</a>
+                        <a href="https://wiki.bafangwy.com/doc/297/" class="link">常用软件下载</a>
+                        <a href="https://www.cnblogs.com/HOsystem/p/18645159" class="link">博客知识库</a>
+                        <a href="https://isc.360.com/new/" class="link">ISC</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>答疑查询</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://pan.quark.cn/" class="link">CSDN</a>
+                        <a href="https://cplusplus.com/" class="link">cplusplus（知识点查询）</a>
+                        <a href="https://www.zhihu.com/" class="link">知乎</a>
+                        <a href="https://github.com/" class="link">GitHub</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>网课</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://learn.deeplearning.ai/search?q=" class="link">DeepLearning.Al</a>
+                        <a href="https://www.imooc.com/" class="link">慕课网（IT版）</a>
+                        <a href="https://www.icourse163.org/" class="link">MOOC</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>大视频网站</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://www.youtube.com/" class="link">YouTube_T</a>
+                        <a href="https://www.bilibili.com/" class="link">B站</a>
+                        <a href="https://www.douyin.com/" class="link">抖音</a>
+                        <a href="https://www.kuaishou.com/" class="link">快手</a>
+                        <a href="https://www.tiktok.com/" class="link">TikTok_T</a>
+                        <a href="https://v.qq.com" class="link">腾讯视频</a>
+                        <a href="https://www.youku.com" class="link">优酷</a>
+                        <a href="https://www.iqiyi.com" class="link">爱奇艺</a>
+                        <a href="https://tv.cctv.com" class="link">央视网</a>
+                        <a href="https://www.douban.com" class="link">豆瓣</a>
+                        <a href="https://www.xiaohongshu.com" class="link">小红书</a>
+                    </div>
+                </div>
+                
+                <div class="subcategory-content" style="margin-top:15px; border-top:1px dashed #eee; padding-top:15px;">
+                    <a href="#" class="link">编程开发</a>
+                    <a href="#" class="link">电商运营</a>
+                    <a href="#" class="link">自媒体运营</a>
+                    <a href="#" class="link">考研</a>
+                    <a href="#" class="link">考公</a>
+                    <a href="#" class="link">考试</a>
+                    <a href="#" class="link">题库</a>
+                    <a href="#" class="link">医学</a>
+                    <a href="#" class="link">外语</a>
+                    <a href="#" class="link">教辅</a>
+                    <a href="#" class="link">幼儿教育</a>
+                    <a href="#" class="link">小初高</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">▼</span>
+                <h2>AI工具</h2>
+            </div>
+            <div class="category-content">
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>AI问答</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://chat.deepseek.com/" class="link">DeepSeek</a>
+                        <a href="https://chat.qwen.ai/" class="link">Qwen</a>
+                        <a href="https://yuanbao.tencent.com/chat/naQivTmsDa" class="link">腾讯元宝</a>
+                        <a href="https://kimi.moonshot.cn/" class="link">Kimi</a>
+                        <a href="https://tongyi.aliyun.com/" class="link">通义灵码</a>
+                        <a href="https://chat.openai.com/" class="link">OpenAI</a>
+                        <a href="https://yiyan.baidu.com/" class="link">文心一言</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>Ai文生图/视频/音频克隆/渲染/动画/画质修复/设计(免费)</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://chatgpt.com/g/g-2fkFE8rbu-dall-e" class="link">Dall-E_T</a>
+                        <a href="https://hailuoai.com/video" class="link">海螺AI</a>
+                        <a href="https://hailuoai.video/" class="link">HailuoAi_T</a>
+                        <a href="https://www.krea.ai/" class="link">Krea_T</a>
+                        <a href="https://jimeng.jianying.com/ai-tool/home/" class="link">即梦Ai</a>
+                        <a href="https://playground.com/" class="link">FreeAi_T</a>
+                        <a href="https://www.comfy.org/zh-cn/" class="link">ComfyUI</a>
+                        <a href="https://www.freeai.com/" class="link">FreeAi_T</a>
+                        <a href="https://tensor.art/" class="link">TensorArt_T</a>
+                        <a href="https://www.domoai.app/zh-Hant/home" class="link">DomoAi_T</a>
+                        <a href="https://liveportrait.org/zh" class="link">LivePortraitAi_T</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>Aippt(免费)</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://gamma.app/signup" class="link">Gamma_T</a>
+                        <a href="https://zhiwen.xfyun.cn/home" class="link">讯飞智文在线生成ppt/word</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>万能格式转换(免费)</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://www.aconvert.com/cn/" class="link">Aconvert</a>
+                        <a href="https://convertio.co/zh/" class="link">文件转换器</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>Ai音乐</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://www.suno.cn/home/" class="link">Suno</a>
+                        <a href="https://suno.com/" class="link">Suno_T(免费)</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>Ai学术</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://www.ixueshu.com/" class="link">爱术网</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>Ai背景一键移除/3D渲染/图片拼接/一键漫画</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://images.batchtool.com/zh" class="link">Batch Tools</a>
+                        <a href="https://www.promeai.pro/home" class="link">PromeAl_T</a>
+                        <a href="https://labs.google/fx/tools/whisk/unsupported-country" class="link">Whis_T</a>
+                        <a href="https://aicomicfactory.com/zh" class="link">Al Comic Factory_T</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">▼</span>
+                <h2>工具箱</h2>
+            </div>
+            <div class="category-content">
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>免费动漫/影视资源</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://www.jiongciyuan1.cc/index.php/label/new.html" class="link">动漫</a>
+                        <a href="https://hunhepan.com/" class="link">混合盘</a>
+                        <a href="https://www.91panta.cn/" class="link">盘Ta</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>破解版软件下载</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://www.yuque.com/yihulaojiu-gsfg9/zz2qv5/boe117axkcecw77" class="link">Adob全家桶</a>
+                        <a href="https://shiyrj.top/" class="link">石用软件</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>免费音乐下载</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://www.xmwav.com/mscdetail/147529.html" class="link">熊猫无损音乐</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>居家的环游世界的工具</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://sakura-cat2.com/register?code=bCsEUzg4" class="link">SakuraCat</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>导航网站</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://dokidokiweb.com/" class="link">Dokidokiweb</a>
+                        <a href="https://flowus.cn/galijun/share/de0f6d2f-df17-4075-86ed-ebead0394a77" class="link">咖喱君的资源目录</a>
+                        <a href="http://www.xiaobianji.com/zt/zitiwangzhan/" class="link">字体导航网站</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>游戏开发资源</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://huaban.com/pins/1211262163" class="link">图片/按键素材</a>
+                        <a href="https://www.tukuppt.com/yinxiaomuban/youxianniudianji.html" class="link">音效素材</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>激活码</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://www.kdocs.cn/l/ctGQnxTCqile" class="link">IDM-6.42 终身激活教程</a>
+                        <a href="https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-R2-and-2012/jj612867(v=ws.11)#windows-10" class="link">windows激活码</a>
+                        <a href="https://kms.cx/" class="link">一键激活 windows/office</a>
+                    </div>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-header">
+                        <span>▶</span>
+                        <span>deepseek扩展使用</span>
+                    </div>
+                    <div class="subcategory-content">
+                        <a href="https://ima.qq.com/" class="link">个人知识库构建</a>
+                        <a href="https://www.datawhale.cn/learn/content/129/3547" class="link">详细使用手册</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">▼</span>
+                <h2>所有学术用图制图工具</h2>
+            </div>
+            <div class="category-content">
+                <div class="subcategory-content">
+                    <a href="https://www.processon.com/login" class="link">Processon</a>
+                    <a href="https://www.jyshare.com/front-end/9729/" class="link">Mermaid_T 在线绘图工具|菜鸟工具</a>
+                    <a href="https://xmind.app/" class="link">Xmind(脑图绘制软件)</a>
+                    <a href="https://www.lucidchart.com/pages" class="link">Lucidchart_T</a>
+                    <a href="https://app.diagrams.net/" class="link">Diagrams_T</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">▼</span>
+                <h2>API调用</h2>
+            </div>
+            <div class="category-content">
+                <div class="subcategory-content">
+                    <a href="https://siliconflow.cn/zh-cn/models" class="link">Siliconflow(Ai模型api)</a>
+                    <a href="https://openrouter.ai/" class="link">Openroute_T(Ai模型免费api)</a>
+                    <a href="https://www.tianapi.com/" class="link">天聚数行开发者api(啥都有)</a>
+                    <a href="https://ai.baidu.com/tech/imagerecognition/dish" class="link">百度菜品识别</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">▼</span>
+                <h2>常见邮箱</h2>
+            </div>
+            <div class="category-content">
+                <div class="subcategory-content">
+                    <a href="https://wx.mail.qq.com/" class="link">QQ邮箱</a>
+                    <a href="https://outlook.live.com/" class="link">Outlook邮箱</a>
+                    <a href="https://mail.google.com/mail/u/1/#inbox" class="link">谷歌邮箱_T</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© <script>document.write(new Date().getFullYear())</script> 网址导航 - 让上网更便捷</p>
+        <p>（后缀名有"_T"的可能需要"魔法"才能访问）</p>
+    </footer>
+
+    <script>
+        // 分类折叠功能
+        document.querySelectorAll('.category-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const category = header.parentElement;
+                category.classList.toggle('collapsed');
+            });
+        });
+
+        // 子分类折叠功能
+        document.querySelectorAll('.subcategory-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                content.style.display = content.style.display === 'none' ? 'flex' : 'none';
+                const arrow = header.querySelector('span:first-child');
+                arrow.textContent = content.style.display === 'none' ? '▶' : '▼';
+            });
+        });
+
+        // 分享功能
+        const shareModal = document.getElementById('shareModal');
+        const shareButton = document.getElementById('shareButton');
+        shareButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            shareModal.style.display = 'block';
+        });
+
+        // 订阅功能
+        const subscribeModal = document.getElementById('subscribeModal');
+        const subscribeButton = document.getElementById('subscribeButton');
+        subscribeButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            subscribeModal.style.display = 'block';
+        });
+
+        // 关闭弹窗
+        document.querySelectorAll('.close-button').forEach(button => {
+            button.addEventListener('click', function() {
+                this.closest('.modal').style.display = 'none';
+            });
+        });
+
+        // 点击弹窗外部关闭
+        window.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        });
+
+        // 订阅表单提交
+        document.querySelector('.subscribe-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('input[type="email"]').value;
+            alert('感谢订阅！我们会将更新发送到：' + email);
+            this.reset();
+            subscribeModal.style.display = 'none';
+        });
+
+        // 复制链接功能
+        document.querySelector('.copy-button').addEventListener('click', function() {
+            const linkInput = document.querySelector('.share-link input');
+            linkInput.select();
+            document.execCommand('copy');
+            alert('链接已复制到剪贴板！');
+        });
+
+        // 搜索功能
+        const searchButton = document.getElementById('searchButton');
+        searchButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const searchBox = document.querySelector('.search-box');
+            if (searchBox) {
+                searchBox.remove();
+            } else {
+                const searchDiv = document.createElement('div');
+                searchDiv.className = 'search-box';
+                
+                const searchInput = document.createElement('input');
+                searchInput.type = 'text';
+                searchInput.placeholder = '搜索...';
+
+                const searchResults = document.createElement('div');
+                searchResults.className = 'search-results';
+                
+                searchInput.addEventListener('input', function(e) {
+                    const term = e.target.value.toLowerCase();
+                    searchResults.innerHTML = '';
+                    
+                    if (term) {
+                        const links = document.querySelectorAll('.link');
+                        links.forEach(link => {
+                            const text = link.textContent.toLowerCase();
+                            if (text.includes(term)) {
+                                const category = link.closest('.category');
+                                const subcategory = link.closest('.subcategory');
+                                
+                                const resultItem = document.createElement('div');
+                                resultItem.className = 'search-result-item';
+                                
+                                const titleDiv = document.createElement('div');
+                                titleDiv.textContent = link.textContent;
+                                
+                                const pathDiv = document.createElement('div');
+                                pathDiv.className = 'search-result-path';
+                                
+                                let path = '';
+                                if (category) {
+                                    path = category.querySelector('.category-header h2').textContent;
+                                }
+                                if (subcategory) {
+                                    path += ' > ' + subcategory.querySelector('.subcategory-header span:last-child').textContent;
+                                }
+                                pathDiv.textContent = path;
+                                
+                                resultItem.appendChild(titleDiv);
+                                resultItem.appendChild(pathDiv);
+                                
+                                resultItem.addEventListener('click', () => {
+                                    link.click();
+                                    searchDiv.remove();
+                                });
+                                
+                                searchResults.appendChild(resultItem);
+                            }
+                        });
+                    }
+                });
+                
+                searchDiv.appendChild(searchInput);
+                searchDiv.appendChild(searchResults);
+                document.body.appendChild(searchDiv);
+                searchInput.focus();
+            }
+        });
+
+        // 修复子分类折叠初始状态
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.subcategory-header').forEach(header => {
+                const content = header.nextElementSibling;
+                const arrow = header.querySelector('span:first-child');
+                if (content.style.display === 'none') {
+                    arrow.textContent = '▶';
+                } else {
+                    arrow.textContent = '▼';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
